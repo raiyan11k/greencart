@@ -9,7 +9,7 @@ const Footer = () => {
                 <div>
                     <img className="w-34 md:w-32" src={assets.logo} alt="logo" />
                     <p className="max-w-[410px] mt-6">
-                       fresh groceries and snacks straight to your door. Trusted by thousands, we aim to make your shopping experience simple and affordable</p>
+                       and snacks straight to your door. Trusted by thousands, we aim to make your shopping experience simple and affordable</p>
                 </div>
                 <div className="flex flex-wrap justify-between w-full md:w-[45%] gap-5">
                     {footerLinks.map((section, index) => (
