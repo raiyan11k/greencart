@@ -10,9 +10,9 @@ export const sellerLogin = async (req, res)=>{
         const token = jwt.sign({email}, process.env.JWT_SECRET, {expiresIn: '7d'})
 
         const cookieOptions = {
-            httpOnly: true,
+            httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
             maxAge: 7 * 24 * 60 * 60 * 1000,
         };
 
@@ -42,9 +42,9 @@ export const isSellerAuth = async (req, res) => {
 export const sellerLogout = async (req, res)=>{
     try{
         const clearOptions = {
-            httpOnly: true,
+            httpOnly: false,
             secure: process.env.NODE_ENV === 'production',
-            sameSite: 'none',
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         };
 
         res.clearCookie('sellerToken', clearOptions);
