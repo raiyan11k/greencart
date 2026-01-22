@@ -13,6 +13,7 @@ const AddProduct = () => {
   const [category, setCategory] = useState ('');
   const [price, setPrice] = useState ('');
   const [offerPrice, setOfferPrice] = useState ('');
+  const [weight, setWeight] = useState ('');
 
   const { axios } = useAppContext ();
 
@@ -25,7 +26,8 @@ const AddProduct = () => {
             description: description.split('\n'),
             category,
             price,
-            offerPrice
+            offerPrice,
+            weight
         }
 
         const formData = new FormData();           //for uploading images on the database
@@ -43,6 +45,7 @@ const AddProduct = () => {
             setCategory('')
             setPrice('')
             setOfferPrice('')
+            setWeight('')
             setFiles([])
         }else{
             toast.error(data.message)
@@ -93,6 +96,23 @@ const AddProduct = () => {
                         {categories.map((item, index)=>(
                             <option key={index} value={item.path}>{item.path}</option>
                         ))}
+                    </select>
+                </div>
+                <div className="w-full flex flex-col gap-1">
+                    <label className="text-base font-medium" htmlFor="weight">Weight</label>
+                    <select onChange={(e)=> setWeight(e.target.value)} value={weight}
+                     id="weight" className="outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500/40" required>
+                        <option value="">Select Weight</option>
+                        <option value="500g">500g</option>
+                        <option value="1kg">1kg</option>
+                        <option value="2kg">2kg</option>
+                        <option value="5kg">5kg</option>
+                        <option value="250ml">250ml</option>
+                        <option value="500ml">500ml</option>
+                        <option value="1L">1L</option>
+                        <option value="1 piece">1 piece</option>
+                        <option value="1 dozen">1 dozen</option>
+                        <option value="1 pack">1 pack</option>
                     </select>
                 </div>
                 <div className="flex items-center gap-5 flex-wrap">

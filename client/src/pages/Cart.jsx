@@ -1,43 +1,50 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAppContext } from "../context/AppContext";
-import { assets, dummyAddress } from "../assets/assets";
+import { assets} from "../assets/assets";
 import toast from "react-hot-toast";
 
 const Cart = () => {
     const {products, currency, cartItems, removeFromCart, getCartCount, updateCartItem, navigate, getCartAmount, axios, user, setCartItems} = useAppContext()
-    const [cartArray, setCartArray] = useState([])
     const [addresses, setAddresses] = useState([])
     const [showAddress, setShowAddress] = useState(false)
     const [selectedAddress, setSelectedAddress] = useState(null)
     const [paymentOption, setPaymentOption] = useState("COD")
 
-    const getCart = ()=>{
-        let tempArray= []
-        for(const key in cartItems){
-            const product = products.find((item)=>item._id ===key)
-            product.quantity = cartItems[key]
-            tempArray.push(product)
+    // Derive cartArray from products and cartItems using useMemo
+    const cartArray = useMemo(() => {
+        if (!products.length || !cartItems) return []
+        const tempArray = []
+        for (const key in cartItems) {
+            const product = products.find((item) => item._id === key)
+            if (product) {
+                tempArray.push({ ...product, quantity: cartItems[key] })
+            }
         }
-        setCartArray(tempArray)
-    }
+        return tempArray
+    }, [cartItems, products])
 
     // get user address
-
-    const getUserAddress = async ()=>{
-        try {
-            const {data}= await axios.get('/api/address/get');
-            if (data.success){
-                setAddresses(data.addresses)
-                if (data.addresses.length > 0) {
-                    setSelectedAddress(data.addresses[0])
+    useEffect(() => {
+        const getUserAddress = async () => {
+            try {
+                const { data } = await axios.get('/api/address/get');
+                if (data.success) {
+                    setAddresses(data.addresses)
+                    if (data.addresses.length > 0) {
+                        setSelectedAddress(data.addresses[0])
+                    }
+                } else {
+                    toast.error(data.message)
                 }
-            }else{
-                toast.error(data.message)
+            } catch (error) {
+                toast.error(error.message)
             }
-        } catch (error) {
-            toast.error(error.message)
         }
-    }
+        
+        if (user) {
+            getUserAddress()
+        }
+    }, [user, axios])
 
     const placeOrder = async ()=> {
         try {
@@ -75,20 +82,6 @@ const Cart = () => {
             toast.error(error.message)
         }
     }
-
-    useEffect (()=>{
-        if(products.length > 0 && cartItems ){
-            getCart()
-        }
-    },[products, cartItems])
-
-
-
-    useEffect(()=>{
-        if (user) {
-            getUserAddress()
-        }
-    },[user])
 
     return products.length > 0 && cartItems ? (
         <div className="flex flex-col md:flex-row mt-16">
@@ -153,7 +146,7 @@ const Cart = () => {
                         </button>
                         {showAddress && (
                             <div className="absolute top-12 py-1 bg-white border border-gray-300 text-sm w-full">
-                                {addresses.map((address, index)=>(
+                                {addresses.map((address)=>(
                                 <p onClick={() => {setSelectedAddress(address); setShowAddress(false);}} className="text-gray-500 p-2 hover:bg-gray-100">
                                     {address.street}, {address.city},{address.state},{address.country}
                                 </p>
@@ -185,11 +178,11 @@ const Cart = () => {
                         <span>Shipping Fee</span><span className="text-green-600">Free</span>
                     </p>
                     <p className="flex justify-between">
-                        <span>Tax (2%)</span><span>{currency}{getCartAmount() * 2/100}</span>
+                        <span>Tax (10%)</span><span>{currency}{getCartAmount() * 10/100}</span>
                     </p>
                     <p className="flex justify-between text-lg font-medium mt-3">
                         <span>Total Amount:</span><span>
-                            {currency}{getCartAmount()+ getCartAmount() * 2/100}</span>
+                            {currency}{getCartAmount()+ getCartAmount() * 10/100}</span>
                     </p>
                 </div>
 

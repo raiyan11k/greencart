@@ -1,16 +1,23 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState } from 'react'
 import { useAppContext } from '../context/AppContext';
-import { dummyOrders } from '../assets/assets';
+import InvoiceModal from '../components/InvoiceModal';
 
 const MyOrders = () => {
     const [myOrders, setMyOrders] = useState([])
+    const [selectedOrder, setSelectedOrder] = useState(null)
+    const [showInvoice, setShowInvoice] = useState(false)
     const {currency, axios, user} = useAppContext()
 
     const fetchMyOrders = async ()=>{
         try {
             const { data } = await axios.get('/api/order/user')
             if(data.success){
-                setMyOrders(data.orders)
+                // Sort orders by date (newest first)
+                const sortedOrders = data.orders.sort((a, b) => 
+                    new Date(b.createdAt) - new Date(a.createdAt)
+                );
+                setMyOrders(sortedOrders)
             }
         } catch (error) {
             console.log(error);
@@ -18,9 +25,12 @@ const MyOrders = () => {
     }
 
     useEffect(()=>{
-        if (user) {
-            fetchMyOrders()
-        } 
+        const fetchData = async () => {
+            if (user) {
+                await fetchMyOrders()
+            }
+        };
+        fetchData();
     },[user])
 
   return (
@@ -64,8 +74,32 @@ const MyOrders = () => {
                     
                 </div>
             ))}
+            <div className='flex justify-end mt-4'>
+                <button 
+                    onClick={() => {
+                        setSelectedOrder(order);
+                        setShowInvoice(true);
+                    }}
+                    className='flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-dull transition cursor-pointer'
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    View Invoice
+                </button>
+            </div>
         </div>
       ))}
+
+      {/* Invoice Modal */}
+      <InvoiceModal 
+        order={selectedOrder} 
+        isOpen={showInvoice} 
+        onClose={() => {
+            setShowInvoice(false);
+            setSelectedOrder(null);
+        }} 
+      />
     </div>
   )
 }

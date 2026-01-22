@@ -1,7 +1,9 @@
+import { Link } from "react-router-dom";
 import { assets, footerLinks } from "../assets/assets";
 
 const Footer = () => {
     
+    const isExternalLink = (url) => url.startsWith('http');
 
     return (
         <div className="px-6 md:px-16 lg:px-24 xl:px-32 mt-24 bg-primary/10" >
@@ -9,7 +11,7 @@ const Footer = () => {
                 <div>
                     <img className="w-34 md:w-32" src={assets.logo} alt="logo" />
                     <p className="max-w-[410px] mt-6">
-                       and snacks straight to your door. Trusted by thousands, we aim to make your shopping experience simple and affordable</p>
+                       Fresh groceries and snacks straight to your door. Trusted by thousands, we aim to make your shopping experience simple and affordable.</p>
                 </div>
                 <div className="flex flex-wrap justify-between w-full md:w-[45%] gap-5">
                     {footerLinks.map((section, index) => (
@@ -18,7 +20,23 @@ const Footer = () => {
                             <ul className="text-sm space-y-1">
                                 {section.links.map((link, i) => (
                                     <li key={i}>
-                                        <a href={link.url} className="hover:underline transition">{link.text}</a>
+                                        {isExternalLink(link.url) ? (
+                                            <a 
+                                                href={link.url} 
+                                                target="_blank" 
+                                                rel="noopener noreferrer"
+                                                className="hover:underline hover:text-primary transition"
+                                            >
+                                                {link.text}
+                                            </a>
+                                        ) : (
+                                            <Link 
+                                                to={link.url} 
+                                                className="hover:underline hover:text-primary transition"
+                                            >
+                                                {link.text}
+                                            </Link>
+                                        )}
                                     </li>
                                 ))}
                             </ul>
