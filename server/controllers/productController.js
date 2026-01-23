@@ -62,3 +62,46 @@ export const changeStock = async (req, res)=>{
         res.json({ success: false, message: error.message })
     }
 }
+
+// Update Product : /api/product/update
+export const updateProduct = async (req, res)=>{
+    try {
+        const { id, name, description, category, price, offerPrice, weight } = req.body
+        
+        if (!id) {
+            return res.json({ success: false, message: "Product ID is required" })
+        }
+
+        const updateData = {
+            name,
+            description: typeof description === 'string' ? description.split('\n') : description,
+            category,
+            price,
+            offerPrice,
+            weight
+        }
+
+        await Product.findByIdAndUpdate(id, updateData)
+        res.json({success: true, message: "Product Updated"})
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message })
+    }
+}
+
+// Delete Product : /api/product/delete
+export const deleteProduct = async (req, res)=>{
+    try {
+        const { id } = req.body
+        
+        if (!id) {
+            return res.json({ success: false, message: "Product ID is required" })
+        }
+
+        await Product.findByIdAndDelete(id)
+        res.json({success: true, message: "Product Deleted"})
+    } catch (error) {
+        console.log(error.message);
+        res.json({ success: false, message: error.message })
+    }
+}

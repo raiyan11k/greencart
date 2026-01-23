@@ -27,8 +27,8 @@ export const PlaceOrderStripe = async (req,res)=>{
             return (await acc) + product.offerPrice * item.quantity;
         }, 0)
 
-        // Add Tax Charge (2%)
-        amount += Math.floor(amount * 0.02);
+        // Add Tax Charge (10%)
+        amount += Math.floor(amount * 0.10);
 
         const order = await Order.create({
             userId,
@@ -50,7 +50,7 @@ export const PlaceOrderStripe = async (req,res)=>{
                     product_data:{
                         name: item.name,
                     },
-                    unit_amount: Math.floor(item.price + item.price * 0.02) * 100
+                    unit_amount: Math.floor(item.price + item.price * 0.10) * 100
                 },
                 quantity: item.quantity,
             }
@@ -149,8 +149,8 @@ export const PlaceOrderCOD = async (req,res)=>{
             return (await acc) + product.offerPrice * item.quantity;
         }, 0)
 
-        // Add Tax Charge (2%)
-        amount += Math.floor(amount * 0.02);
+        // Add Tax Charge (10%)
+        amount += Math.floor(amount * 0.10);
 
         await Order.create({
             userId,
@@ -175,7 +175,7 @@ export const getUserOrder = async (req, res)=>{
         const orders = await Order.find ({
             userId,
             $or: [{paymentType: "COD"}, {isPaid: true}]
-        }).populate("items.product address").sort({CreatedAt: -1});
+        }).populate("items.product address").sort({createdAt: -1});
         res.json({ success: true, orders });
     } catch (error) {
         res.json({ success: false, message: error.message });
@@ -190,6 +190,22 @@ export const getAllOrders = async (req, res)=>{
             $or: [{paymentType: "COD"}, {isPaid: true}]
         }).populate("items.product address").sort({createdAt: -1});
         res.json({ success: true, orders });
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+// Update Payment Status (for seller / admin ) : /api/order/update-payment
+export const updatePaymentStatus = async (req, res)=>{
+    try {
+        const { orderId, isPaid } = req.body;
+        
+        if (!orderId) {
+            return res.json({ success: false, message: "Order ID is required" });
+        }
+        
+        await Order.findByIdAndUpdate(orderId, { isPaid });
+        res.json({ success: true, message: `Payment marked as ${isPaid ? 'Paid' : 'Pending'}` });
     } catch (error) {
         res.json({ success: false, message: error.message });
     }
