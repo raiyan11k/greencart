@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 
 const Dashboard = () => {
     const { axios, currency, products } = useAppContext();
+    // eslint-disable-next-line no-unused-vars
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [stats, setStats] = useState({
@@ -116,6 +117,7 @@ const Dashboard = () => {
 
     useEffect(() => {
         fetchOrders();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [products]);
 
     // Get max revenue for chart scaling

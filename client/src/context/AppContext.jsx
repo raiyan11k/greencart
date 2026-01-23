@@ -7,6 +7,7 @@ import axios from "axios";
 axios.defaults.withCredentials = true; // send cookies to api request
 axios.defaults.baseURL = import.meta.env.VITE_BACKEND_URL;
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const AppContext = createContext();
 
 export const AppContextProvider = ({children})=>{
@@ -31,7 +32,7 @@ export const AppContextProvider = ({children})=>{
             } else {
                 setIsSeller(false)
             }
-        } catch (error) {
+        } catch {
             setIsSeller(false)
         }
     }
@@ -44,7 +45,7 @@ export const AppContextProvider = ({children})=>{
                 setUser(data.user)
                 setCartItems(data.user.cartItems)
             }
-        } catch (error) {
+        } catch {
             setUser(null)
         }
     }
@@ -120,9 +121,10 @@ export const AppContextProvider = ({children})=>{
     }
 
     useEffect(()=>{
-        fetchUser()
-        fetchSeller()
-        fetchProducts()
+        const initializeApp = async () => {
+            await Promise.all([fetchUser(), fetchSeller(), fetchProducts()]);
+        };
+        initializeApp();
     },[])
 
     // update database cart items  
@@ -141,7 +143,7 @@ export const AppContextProvider = ({children})=>{
         if (user) {
             updateCart()
         }
-    },[cartItems])
+    },[cartItems, user])
 
     const value = {navigate, user, setUser, setIsSeller, isSeller, showUserLogin, setShowUserLogin, products, currency, addToCart, updateCartItem, removeFromCart, cartItems, searchQuery, setSearchQuery, getCartAmount, getCartCount, axios, fetchProducts, setCartItems
 
@@ -152,6 +154,7 @@ export const AppContextProvider = ({children})=>{
     </AppContext.Provider>
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAppContext = ()=>{
     return useContext(AppContext)
 }

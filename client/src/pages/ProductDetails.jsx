@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useAppContext } from "../context/AppContext";
 import { Link, useParams } from "react-router-dom";
 import { assets } from "../assets/assets";
@@ -8,22 +8,27 @@ const ProductDetails = () => {
 
     const {products, navigate, currency, addToCart} = useAppContext()
     const {id} = useParams()
-    const [relatedProducts, setRelatedProducts] = useState ([]);
-    const [thumbnail, setThumbnail] = useState (null);
+    const [selectedThumbnail, setSelectedThumbnail] = useState({ productId: null, image: null });
 
     const product = products.find((item)=> item._id === id);
 
-    useEffect (()=>{
-        if(products.length > 0 ){
-            let produtcsCopy = products.slice();
-            produtcsCopy = produtcsCopy.filter((item)=> product.category === item.category)
-            setRelatedProducts(produtcsCopy.slice(0,5))
+    const relatedProducts = useMemo(() => {
+        if (products.length > 0 && product) {
+            return products
+                .filter((item) => product.category === item.category)
+                .slice(0, 5);
         }
-    },[products])
+        return [];
+    }, [products, product]);
 
-    useEffect (()=>{
-        setThumbnail (product?.image[0] ? product.image[0]: null)
-    },[product])
+    // Compute effective thumbnail: use selected if same product, otherwise default to first image
+    const thumbnail = selectedThumbnail.productId === id 
+        ? selectedThumbnail.image 
+        : product?.image[0] ?? null;
+
+    const handleThumbnailClick = (image) => {
+        setSelectedThumbnail({ productId: id, image });
+    };
 
     return product && (
         <div className="mt-12">
@@ -38,7 +43,7 @@ const ProductDetails = () => {
                 <div className="flex gap-3">
                     <div className="flex flex-col gap-3">
                         {product.image.map((image, index) => (
-                            <div key={index} onClick={() => setThumbnail(image)} className="border max-w-24 border-gray-500/30 rounded overflow-hidden cursor-pointer" >
+                            <div key={index} onClick={() => handleThumbnailClick(image)} className="border max-w-24 border-gray-500/30 rounded overflow-hidden cursor-pointer" >
                                 <img src={image} alt={`Thumbnail ${index + 1}`} />
                             </div>
                         ))}
